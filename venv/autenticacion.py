@@ -17,29 +17,28 @@ if ctx_auth.acquire_token_for_app(client_id, client_secret):
     ctx = ClientContext(url, ctx_auth)
     ctx.execute_query()
     print("Connected to SharePoint Online site: {0}".format(url))
+
+    # DESCARGA DE ARCHIVO
+    file_url = "https://teamcocomco.sharepoint.com/sites/teamcocom/Documentos compartidos/Libro1.xls"
+    response = requests.get(file_url)
+    with open('storage/descargado.xls', 'wb') as output_file:
+        output_file.write(response.content)
+        #myfile = (ctx.web.get_file_by_server_relative_url(file_url).download(output_file).execute_query())
+    print("File downloaded successfully.")
+
+    #OBTENER DATOS DE UNA LISTA
+    from office365.sharepoint.lists.list import List
+    # Creación del objeto List
+    list_url = 'https://teamcocomco.sharepoint.com/sites/teamcocom/Lists/viaticos/'
+    my_list=List.from_url(list_url, ctx)
+    items = my_list.get_items()
+    ctx.load(items)
+    ctx.execute_query()
+    for item in items:
+        print(item.properties['Title'])
+
 else:
     print(ctx_auth.get_last_error())
-
-# DESCARGA DE ARCHIVO
-file_url = "https://teamcocomco.sharepoint.com/sites/teamcocom/Documentos compartidos/Libro1.xls"
-response = requests.get(file_url)
-with open('storage/descargado.xls', 'wb') as output_file:
-    output_file.write(response.content)
-    #myfile = (ctx.web.get_file_by_server_relative_url(file_url).download(output_file).execute_query())
-print("File downloaded successfully.")
-
-#OBTENER DATOS DE UNA LISTA
-from office365.sharepoint.lists.list import List
-# Creación del objeto List
-list_url = 'https://teamcocomco.sharepoint.com/sites/teamcocom/Lists/viaticos/'
-my_list = List.from_url(list_url, ctx)
-items = my_list.get_items()
-ctx.load(items)
-ctx.execute_query()
-for item in items:
-    print(item.properties['Title'])
-
-
 
 '''
 # Obtener la lista de tareas
@@ -53,15 +52,12 @@ ctx.execute_query()
 for item in items:
     print(item.properties)
 
-
 # Crear un nuevo elemento en la lista de tareas
 item_properties = {'Title': 'New Task', 'Status': 'Not Started'}
 list_item = list_obj.add_item(item_properties)
 ctx.execute_query()
 # Imprimir el ID del nuevo elemento
 print('New item ID: {0}'.format(list_item.id))
-
-
 
 #DESCARGA DE ARCHIVOS
 with open("C:/Users/David Buitrago/Downloads/Test4/storage/", "wb") as local_file: 
